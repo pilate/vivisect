@@ -45,13 +45,7 @@ class i386Module(envi.ArchitectureModule):
         return '0x%.8x' % va
 
     def archParseOpcode(self, bytes, offset=0, va=0):
-        cache_key = bytes[offset:offset+15]
-        if cache_key in self.opcode_cache:
-            return self.opcode_cache[cache_key]
-        result = self._arch_dis.disasm(bytes, offset, va)
-        if result.size <= 15:
-            self.opcode_cache[cache_key] = result
-        return result
+        return self._arch_dis.disasm(bytes, offset, va)
 
     def getEmulator(self):
         return IntelEmulator()
