@@ -19,6 +19,7 @@ class i386Module(envi.ArchitectureModule):
     def __init__(self):
         envi.ArchitectureModule.__init__(self, 'i386')
         self._arch_dis = i386Disasm()
+        self.opcode_cache = {}
 
     def archGetRegCtx(self):
         return i386RegisterContext()
@@ -44,7 +45,13 @@ class i386Module(envi.ArchitectureModule):
         return '0x%.8x' % va
 
     def archParseOpcode(self, bytes, offset=0, va=0):
-        return self._arch_dis.disasm(bytes, offset, va)
+        cache_key = bytes[offset:offset+15]
+        if cache_key in self.opcode_cache:
+            return self.opcode_cache[cache_key]
+        result = self._arch_dis.disasm(bytes, offset, va)
+        if result.size <= 15:
+            self.opcode_cache[cache_key] = result
+        return result
 
     def getEmulator(self):
         return IntelEmulator()
